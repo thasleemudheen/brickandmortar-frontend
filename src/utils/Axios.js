@@ -1,53 +1,65 @@
 import axios from "axios";
 
-
-const BASE_URL = import.meta.env.VITE_BASE_URL  
-console.log('baser url',BASE_URL);
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const instance = axios.create({
-   baseURL:BASE_URL ,
-
+  baseURL: BASE_URL,
 });
 
+// Request interceptor to add Authorization header
+instance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('accessToken'); // Get token from localStorage
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`; // Attach token to the Authorization header
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor for handling refresh token logic
 instance.interceptors.response.use(
-   (response) => {
-       return response; // If response is successful, just return the response
-   },
-   async (error) => {
-       const originalRequest = error.config;
+  (response) => response, // Return the response if successful
+  async (error) => {
+    const originalRequest = error.config;
 
-       // Check if the error is due to an expired access token
-       if (error.response && error.response.status === 401 && !originalRequest._retry) {
-           originalRequest._retry = true;
+    // Check if the error is due to an expired access token
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true; // Mark the request as retried
 
-           try {
-            console.log('its comes to the try');
-            
-               // Try refreshing the access token
-               const refreshTokenResponse = await instance.post('/refresh',{},{
-                  withCredentials:true
-               });
-               console.log('the refresh token is not get from the respons',refreshTokenResponse)
-               if (refreshTokenResponse.status === 200) {
-                  const newAccessToken = refreshTokenResponse.data.accessToken;
-                  localStorage.setItem('accessToken', newAccessToken); // Store only the access token
+      try {
+        // Send request to refresh access token
+        const refreshResponse = await axios.post(
+          `${BASE_URL}/refresh`, 
+          {}, 
+          { withCredentials: true } // Send cookies for refresh
+        );
 
-                  instance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+        if (refreshResponse.status === 200) {
+          // Update the access token in localStorage
+          const newAccessToken = refreshResponse.data.accessToken;
+          localStorage.setItem('accessToken', newAccessToken);
 
-                  // Retry the original request with the new access token
-                  return instance(originalRequest);
-              }
-           } catch (refreshError) {
-            console.error('Unable to refresh token:', refreshError);
-            alert('unable to refresh tokens')
-            localStorage.removeItem('accessToken');
-            window.location.href = '/login';
-           }
-       }
+          // Update the Authorization header with the new token
+          instance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 
-       return Promise.reject(error);
-   }
+          // Retry the original request with the new token
+          return instance(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('Failed to refresh access token', refreshError);
+        // Remove the access token and redirect to login if refresh fails
+        localStorage.removeItem('accessToken');
+        window.location.href = '/login'; // Redirect to login
+      }
+    }
+
+    return Promise.reject(error);
+  }
 );
 
 export default instance;

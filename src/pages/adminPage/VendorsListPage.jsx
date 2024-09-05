@@ -1,4 +1,5 @@
 import CommonTable from '@/components/common/CommonTable';
+import AdminChangeStatus from '@/services/admin/AdminChangeStatus';
 import instance from '@/utils/Axios';
 import React, { useEffect, useState } from 'react';
 
@@ -19,7 +20,24 @@ export default function VendorsListPage() {
         };
         fetchVendors();
     }, []);
+        const changeStatus=async(id)=>{
+            console.log('change status',id)
+            alert('are you sure you want to allow vendor')
+            try {
+                const response=await AdminChangeStatus(id)
+                if (response.status === 200) {
+                    setVendors((prevVendors) =>
+                        prevVendors.map((vendor) =>
+                            vendor._id === id ? { ...vendor, isApproved: !vendor.isApproved } : vendor
+                        )
+                    );
+                }
+                    console.log(response) 
+            } catch (error) {
+                console.log(error)
+            }
 
+        }
     const columns = [
         {
             title: 'Vendor Name',
@@ -59,9 +77,11 @@ export default function VendorsListPage() {
             dataIndex:'change status',
             key:'change status',
             render: (text, record) => (
-                <button className='bg-orange-500' onClick={() => changeStatus(record._id, record.isApproved)}>
-                    {record.isApproved ? 'Revoke Approval' : 'Approve'}
-                </button>
+                <button   className={`${record.isApproved ? 'bg-green-500' : 'bg-red-500'} text-white px-4 py-2 rounded`}
+    onClick={() => changeStatus(record.key)}
+>
+    {record.isApproved ? 'Approved' : 'Approve'}
+</button>   
             ),
         }
     ];
@@ -71,7 +91,7 @@ export default function VendorsListPage() {
         vendorName: vendor.vendorName,
         vendorEmail: vendor.vendorEmail,
         vendorPhone: vendor.vendorPhone,
-        vendorStatus: vendor.isApproved, 
+        isApproved: vendor.isApproved, 
         documentProof: vendor.documentProof, 
     }));
 

@@ -2,6 +2,8 @@ import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
 import UserLogin from '@/services/user/UserLogin';
+import ShowToast from '@/helpers/ShowToast';
+import { ToastContainer } from 'react-toastify';
 export default function UserLoginPage() {
   const navigate=useNavigate()
   return (
@@ -32,9 +34,15 @@ export default function UserLoginPage() {
                 try {
                    const response=await UserLogin(values)
                    console.log(response)
-                   if(response.status===200){
-                       navigate('/')
+                   if(response.status===404){
+                    ShowToast('error',response.data.message)
+                   }else if(response.status===403){
+                    setFieldError('password',response.data.message)
+                    ShowToast('error',response.data.message)
+                   }else if(response.status===200){
+                    navigate('/')
                    }
+                   
                 } catch (error) {
                   console.log(error)
                 }
@@ -78,6 +86,7 @@ export default function UserLoginPage() {
             </Form>
           )}
         </Formik>
+        <ToastContainer/>
         </div>
       </div>
     </div>

@@ -12,7 +12,7 @@ export default async function UserLogin(values) {
         localStorage.setItem('accessToken', accessToken);
   
         // Set the Authorization header for future requests
-        instance.defaults.headers.common['Authorization'] = 'Bearer ' + accessToken;
+      //   instance.defaults.headers.common['Authorization'] = 'Bearer ' + accessToken;
         return response
      } catch (error) {
       console.log(error)

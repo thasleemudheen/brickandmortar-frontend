@@ -5,9 +5,20 @@ import VendorSignup from '../../services/vendor/VendorSignup';
 import { OtpWriter } from '@/components/common/OtpWriter';
 import ShowToast from '@/helpers/ShowToast';
 import { ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import VendorVerifyOtpSignup from '@/services/vendor/VendorVerifyOtpSignup';
 const VendorSignUpPage = () => {
-  const [showModal,setShowModal]=useState(false)
-  const [data,setData]=useState(null)
+  const [showModal, setShowModal] = useState(false);
+  const [data, setData] = useState(null);
+  const navigate = useNavigate();
+
+  const handleOtpVerification = async (otp, data) => {
+    const response = await VendorVerifyOtpSignup({ otp, data });
+    if (response.status === 200) {
+      navigate('/vendor/login');
+    }
+    return response;
+  };
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className='w-full lg:w-1/3 md:w-3/4 shadow-2xl '>
@@ -151,7 +162,7 @@ const VendorSignUpPage = () => {
             </Form>
           )}
         </Formik>
-        {showModal&&<OtpWriter data={data} />}
+        {showModal && <OtpWriter data={data} handleOtpVerification={handleOtpVerification} />}
        
       </div>
     </div>

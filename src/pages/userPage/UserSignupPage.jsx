@@ -1,12 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { FaGoogle } from 'react-icons/fa';
 import UserSignup from '@/services/user/UserSignup';
 import ShowToast from '@/helpers/ShowToast';
 import { ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import UserVerifyOtpForSignup from '@/services/user/UserVerifyOtpForSignup';
+import { OtpWriter } from '@/components/common/OtpWriter';
 export default function UserSignupPage() {
-    const navigate=useNavigate()
+  const [showModal, setShowModal] = useState(false);
+  const [data, setData] = useState(null);
+  const navigate = useNavigate();
+
+  const handleOtpVerification = async (otp, data) => {
+    const response = await UserVerifyOtpForSignup({ otp,data });
+    if (response.status === 200) {
+      navigate('/');
+    }else if(response.status===404){
+      ShowToast('error',response.data.message)
+      
+    }
+    return response;
+  };
   return (
     <div className="h-screen flex justify-center items-center bg-gray-100">
       <div className="flex flex-col md:flex-row justify-evenly md:w-11/12 lg:w-4/5 items-center bg-white shadow-lg h-auto md:h-5/6 rounded-lg overflow-hidden">
@@ -63,13 +78,14 @@ export default function UserSignupPage() {
               }}
               onSubmit={async (values, { setSubmitting,setFieldError}) => {
                 console.log(values)
+                setData(values)
                 try {
                     const response=await UserSignup(values)
                       if(response.status===404){
                         ShowToast('error',response.data.message)
                         setFieldError('userEmail', response.data.message);
                       }else if(response.status===200){
-                         navigate('/')
+                        setShowModal(true);
                       }
                     console.log(response)
                 } catch (error) {
@@ -157,6 +173,7 @@ export default function UserSignupPage() {
                 </Form>
               )}
             </Formik>
+            {showModal && <OtpWriter data={data} handleOtpVerification={handleOtpVerification} />}
             <ToastContainer/>
           </div>
           <div className="flex flex-col items-center mt-4">

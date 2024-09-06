@@ -8,11 +8,10 @@ const isAuthenticated = async () => {
     if (!token) {
         return false;
     }
-
     try {
         const decoded = jwtDecode(token);
+        console.log('fronend decoded token',decoded)
         const currentTime = Date.now() / 1000;
-
         // If the token is expired
         if (decoded.exp <= currentTime) {
             console.log('Token expired, attempting to refresh');

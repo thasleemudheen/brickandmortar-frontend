@@ -62,12 +62,15 @@ import {
             </ListItemPrefix>
             PROFILE
           </ListItem>
+          <Link to='/admin/users'>
           <ListItem className='font-medium flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors'>
             <ListItemPrefix>
               <UserCircleIcon className="h-5 w-5 mr-3" />
             </ListItemPrefix>
             USER LIST
           </ListItem>
+          </Link>
+          
           <Link to='/admin/vendors'>
           <ListItem className='font-medium flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors'>
             <ListItemPrefix>

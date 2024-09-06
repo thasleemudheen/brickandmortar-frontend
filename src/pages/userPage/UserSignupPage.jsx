@@ -7,11 +7,12 @@ import { ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import UserVerifyOtpForSignup from '@/services/user/UserVerifyOtpForSignup';
 import { OtpWriter } from '@/components/common/OtpWriter';
+import { ClipLoader } from 'react-spinners';
 export default function UserSignupPage() {
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState(null);
   const navigate = useNavigate();
-
+   
   const handleOtpVerification = async (otp, data) => {
     const response = await UserVerifyOtpForSignup({ otp,data });
     if (response.status === 200) {
@@ -162,15 +163,26 @@ export default function UserSignupPage() {
                     />
                   </div>
                   <div className="w-full flex justify-center">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="lg:w-1/3 w-2/3 h-12 md:w-3/5 bg-gray-600 text-white font-bold rounded-md hover:bg-gray-800 transition-colors"
+              <button
+              type="submit"
+              disabled={isSubmitting}
+              className="lg:w-1/3 w-2/3 h-12 md:w-3/5 bg-gray-600 text-white font-bold rounded-md hover:bg-gray-800 transition-colors relative flex justify-center items-center"
                     >
-                      Create Account
-                    </button>
+              <span className={isSubmitting ? "opacity-20" : "opacity-100"}>
+              Create Account
+              </span>
+              {isSubmitting && (
+              <ClipLoader
+              color="#ffffff"
+              size={25}
+              aria-label="Loading Spinner"
+              className="absolute"
+              />
+              )}
+              </button>
                   </div>
                 </Form>
+                
               )}
             </Formik>
             {showModal && <OtpWriter data={data} handleOtpVerification={handleOtpVerification} />}

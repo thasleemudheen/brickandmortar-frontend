@@ -8,7 +8,7 @@ export default async function AdminBlockUser(id) {
         })
         return response
     } catch (error) {
-        console.log(error)
+        console.log('its not printing from the data',error)
     }
    
 }

@@ -8,9 +8,11 @@ import {
 import '../../css/otpWriter.css';
 import { ToastContainer } from 'react-toastify';
 import ShowToast from '@/helpers/ShowToast';
-
+import { ClipLoader } from 'react-spinners';
 export function OtpWriter({ data, handleOtpVerification }) {
   const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,8 +50,15 @@ export function OtpWriter({ data, handleOtpVerification }) {
             <InputOTPSlot index={5} className="otp-slot" />
           </InputOTPGroup>
         </InputOTP>
-        <button type="submit" className="otp-submit-button bg-gray-400 rounded font-bold">
-          Submit
+        <button type="submit" className="otp-submit-button bg-gray-400 rounded font-bold relative flex items-center justify-center">
+          {loading ? (
+            <>
+              <ClipLoader color="#ffffff" size={25} aria-label="Loading Spinner" className="absolute" />
+              <span className="ml-8">Verifying...</span>
+            </>
+          ) : (
+            'Submit'
+          )}
         </button>
       </form>
       <ToastContainer />

@@ -39,7 +39,7 @@ export default function UserLoginPage() {
                    }else if(response.status===403){
                     setFieldError('password',response.data.message)
                     ShowToast('error',response.data.message)
-                   }else if(response.status===200){
+                   } else if(response.status===200){
                     navigate('/')
                    }
                    

@@ -14,6 +14,7 @@ export default function UserRoute() {
             <Route element={<UserProtectedRoutes/>}>
             <Route path='/' element={<UserHomePage/>}/>
             </Route>
+            
         </Routes>
       </Router>
     </div>

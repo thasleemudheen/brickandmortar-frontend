@@ -50,7 +50,6 @@ const UserProtectedRoutes = () => {
         checkAuth();
     }, []);
 
-    // Show a loading indicator while checking authentication
     if (authenticated === null) {
         return <div>Loading...</div>; // Replace with a spinner or other loading indicator if needed
     }

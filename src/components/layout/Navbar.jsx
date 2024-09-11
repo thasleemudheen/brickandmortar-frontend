@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CgProfile } from "react-icons/cg";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,12 +9,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Mobile layout */}
+        <div className="flex items-center justify-between h-20">
           <div className="flex items-center justify-between w-full sm:hidden">
-            {/* Menu bar (left) */}
             <button
               onClick={toggleMenu}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
@@ -28,9 +27,9 @@ const Navbar = () => {
             </div>
 
             {/* Login icon (right) */}
-            <button className="bg-indigo-600 p-2 rounded-full text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              <span className="sr-only">Login</span>
-              👤
+            <button className="bg-gray-400 p-2  text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+              {/* <span className="sr-only"></span> */}
+              <CgProfile/>
             </button>
           </div>
 
@@ -53,9 +52,9 @@ const Navbar = () => {
             </div>
 
             {/* Login Icon */}
-            <button className="bg-indigo-600 p-2 rounded-full text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button className="bg-gray-600 p-2 rounded-full text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               <span className="sr-only">Login</span>
-              👤
+              <CgProfile/>
             </button>
           </div>
         </div>

@@ -12,6 +12,7 @@ export default function AdminLayout() {
         } md:translate-x-0 transition-transform duration-300 ease-in-out`}>
       <AdminDashboard/>
 
+
       </div>
       <div className="flex h-[calc(100vh-2rem)] ml-0 w-full">
         <div className='lg:hidden '>

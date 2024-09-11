@@ -16,14 +16,14 @@ export default function CommonModal({ open, onClose, onSave, title, content }) {
     };
 
     return (
-        <div className="flex justify-center items-center ">
+        <div className="flex justify-center items-center lg:w-full w-full ">
             <Dialog
-                size="xs"
+                size="md"
                 open={open}
                 handler={onClose}
-                className="flex justify-center items-center mx-auto lg:mt-32 bg-slate-400 shadow-xl h-4/6 lg:w-1/3 w-3/4 "
+                className="flex justify-center items-center lg:ml-80 mx-auto lg:mt-32 bg-slate-400 shadow-xl h-4/6 lg:w-3/4 w-full "
             >
-                <Card className="mx-auto w-full max-w-[24rem]">
+                <Card className=" w-full lg:max-w-[24rem]">
                     <CardBody className="flex flex-col gap-4">
                         <Typography variant="h4" color="blue-gray">
                             {title}

@@ -36,13 +36,15 @@ export default function VendorDashBoard() {
             DASHBOARD
           </ListItem>
           </Link>
+          <Link to='/vendor/property'>
+          
           <ListItem className='font-medium flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors'>
             <ListItemPrefix>
               <ShoppingBagIcon className="h-5 w-5 mr-3" />
             </ListItemPrefix>
             PROPERTY LIST
           </ListItem>
-          
+          </Link>
          <Link to='/admin/location'>
          <ListItem className='font-medium flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors'>
             <ListItemPrefix>

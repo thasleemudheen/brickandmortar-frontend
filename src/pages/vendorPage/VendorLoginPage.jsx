@@ -40,6 +40,8 @@ export default function VendorLoginPage() {
               console.log('response from lgoin ',response.data.message)
               if (response.status === 200) {
                 navigate('/vendor/dashboard');
+                localStorage.setItem('vendorToken',response.data.token)
+
               } else if(response.status===404) {
                 ShowToast('error',response.data.message)
                 setFieldError('password',response.data.message);

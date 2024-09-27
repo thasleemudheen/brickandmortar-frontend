@@ -1,5 +1,4 @@
 import instance from '@/utils/Axios'
-import React from 'react'
 
 export default async function VendorLogin(values) {
      try {

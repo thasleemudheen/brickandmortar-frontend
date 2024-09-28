@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Dialog, Card, CardBody, CardFooter, Typography } from "@material-tailwind/react";
-import { CgDetailsLess } from "react-icons/cg";
+// import { CgDetailsLess } from "react-icons/cg";
 
 export default function CommonModal({ open, onClose, onSave, title, content }) {
     const [formData, setFormData] = useState({});

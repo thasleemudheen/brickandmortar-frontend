@@ -1,17 +1,24 @@
 import CommonButton from '@/components/common/CommonButton'
 import CommonModal from '@/components/common/CommonModal'
+import CommonTable from '@/components/common/CommonTable'
 import ShowToast from '@/helpers/ShowToast'
 import LocationListGet from '@/services/admin/LocationListGet'
 import PropertyListGet from '@/services/admin/PropertyListGet'
 import VendorAddProperty from '@/services/vendor/VendorAddProperty'
+import VendorPropertyListGet from '@/services/vendor/VendorPropertyListGet'
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
-
+import { Button } from 'antd'
+import DetailsModal from '@/components/common/DetailsModal'
 export default function VendorPropertyPage() {
     const [showModal,setShowModal]=useState(false)
     const [property,setProperty]=useState([])
     const [location,setLocation]=useState([])
+    const [data,setData]=useState([])
+    const [isModal,setIsModal]=useState(false)
+    const [selectedProperty, setSelectedProperty] = useState(null); // Track the selected property
+
     const navigate=useNavigate()
     console.log('property types property list page',property)
     console.log('location get page in property lsit page',location)
@@ -28,14 +35,28 @@ const fetchLocation=async()=>{
         const response=await LocationListGet()
         setLocation(response.data.locations)
       }
+      const fetchProperties=async()=>{
+        const response=await VendorPropertyListGet()
+         setData(response.data.properties)
+      }
     useEffect(()=>{
       console.log('started');
       
       fetchPropertyTypes()
       fetchLocation()
+      fetchProperties()
     },[])
+    const showDetailModal = (record) => {
+      setSelectedProperty(record); // Set the selected property for modal display
+      setIsModal(true); // Open the modal
+    };
   
-    
+    // Function to handle closing the modal
+    const closeModal = () => {
+      setIsModal(false); // Close the modal
+      setSelectedProperty(null); // Clear the selected property
+    };
+   
     const handleSaveProperty = async (formData) => {
       try {
         // Create a FormData object
@@ -66,12 +87,116 @@ const fetchLocation=async()=>{
             }, 2000);
             
             console.log('token not found admin want to login again')
+        }else if(response.status===200){
+          setData((prev)=>[...prev,response.data.property])
         }
         console.log('Property saved successfully', response);
       } catch (error) {
         console.log('Error saving property', error);
       }
     };
+    const columns = [
+      {
+        title: 'Property Name',
+        dataIndex: 'propertyName',
+        key: 'propertyName',
+      },
+      {
+        title: 'Price',
+        dataIndex: 'propertyPrice',
+        key: 'propertyPrice',
+      },
+      {
+        title: 'Property Type',
+        dataIndex: 'propertyType',
+        key: 'propertyType',
+      },
+      {
+        title: 'Location',
+        dataIndex: 'propertyLocation',
+        key: 'propertyLocation',
+      },
+      {
+          title: 'Vendor ID',
+          dataIndex: 'vendor',
+          key: 'vendor',
+          render: (vendor) => vendor, // Render the vendor ID
+        },
+      // {
+      //   title:'PropertyState',
+      //   dataIndex:'propertyState',
+      //   key:'propertyState'
+      // },
+      // {
+      //   title: 'Vendor ID',
+      //   dataIndex: 'vendor',
+      //   key: 'vendor',
+      //   render: (vendor) => vendor, // Render the vendor ID
+      // },
+      // {
+      //   title:'Location',
+      //   dataIndex:'exactLocation',
+      //   key:'exactLocation'
+      // },
+      // {
+      //   title: 'Additional Details',
+      //   key: 'additionalDetails',
+      //   render: (record) => (
+      //     <div>
+      //       <p>Rooms: {record.additionalDetails.rooms}</p>
+      //       <p>Bathrooms: {record.additionalDetails.bathrooms}</p>
+      //       <p>Floors: {record.additionalDetails.floors}</p>
+      //     </div>
+      //   ),
+      // },
+      // {
+      //   title: 'Nearby Places',
+      //   key: 'distancetoNearbyPlaces',
+      //   render: (record) => (
+      //     <div>
+      //       <p>School: {record.distancetoNearbyPlaces.school}</p>
+      //       <p>Hospital: {record.distancetoNearbyPlaces.hospital}</p>
+      //       <p>Place of Worship: {record.distancetoNearbyPlaces.placeOfWorship}</p>
+      //       <p>Restaurant: {record.distancetoNearbyPlaces.restaurant}</p>
+      //     </div>
+      //   ),
+      // },
+      // {
+      //   title: 'Image',
+      //   dataIndex: 'images',
+      //   key: 'images',
+      //   render: (images) => (
+      //     <img
+      //       src={images[0]} // Display the first image
+      //       alt="property"
+      //       style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+      //     />
+      //   ),
+      // },
+      {
+        title: 'More Details',
+        key: 'moreDetails',
+        render: (record) => (
+          <Button type="primary" onClick={() => showDetailModal(record)}>
+            View Details
+          </Button>
+        ),
+      },
+      {
+        title: 'Actions',
+        key: 'actions',
+        render: (record) => (
+          <div className="flex space-x-2">
+            <Button type="primary" onClick={() => handleEdit(record)}>
+              Edit
+            </Button>
+            <Button type="danger" onClick={() => handleDelete(record._id)}>
+              Delete
+            </Button>
+          </div>
+        ),
+      },
+    ];
      
      const content=[
         { label: "PropertyName", type: "text", placeholder: "Enter property name" },
@@ -112,6 +237,12 @@ const fetchLocation=async()=>{
       <h1>vendor property list page</h1>
       <CommonModal open={showModal} title={'add property'} onClose={()=>setShowModal(false)} content={content}  onSave={handleSaveProperty}/>
         <ToastContainer/>
+        <CommonTable columns={columns} data={data} />
+        <DetailsModal
+        open={isModal}
+        handleClose={closeModal}
+        property={selectedProperty}
+      />
     </div>
   )
 }

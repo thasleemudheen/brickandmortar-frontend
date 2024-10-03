@@ -10,11 +10,15 @@ import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import { Button } from 'antd'
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import DetailsModal from '@/components/common/DetailsModal'
+import ConfirmModal from '@/components/common/ConfirmModal'
+import VendorUpdateProduct from '@/services/vendor/VendorUpdateProduct'
 export default function VendorPropertyPage() {
     const [showModal,setShowModal]=useState(false)
     const [property,setProperty]=useState([])
     const [location,setLocation]=useState([])
+    const [showEditModal,setShowEditModal]=useState(false)
     const [data,setData]=useState([])
     const [isModal,setIsModal]=useState(false)
     const [selectedProperty, setSelectedProperty] = useState(null); // Track the selected property
@@ -47,41 +51,34 @@ const fetchLocation=async()=>{
       fetchProperties()
     },[])
     const showDetailModal = (record) => {
-      setSelectedProperty(record); // Set the selected property for modal display
-      setIsModal(true); // Open the modal
+      setSelectedProperty(record); 
+      setIsModal(true); 
     };
   
-    // Function to handle closing the modal
     const closeModal = () => {
-      setIsModal(false); // Close the modal
-      setSelectedProperty(null); // Clear the selected property
+      setIsModal(false);
+      setSelectedProperty(null); 
     };
    
     const handleSaveProperty = async (formData) => {
       try {
-        // Create a FormData object
         const formDataToSend = new FormData();
     
-        // Append each field from the formData object
         for (const key in formData) {
           if (formData.hasOwnProperty(key) && key !== 'image') {
-            formDataToSend.append(key, formData[key]); // Append other form data fields
+            formDataToSend.append(key, formData[key]); 
           }
         }
     
-        // Append files (assuming formData.image is an array of file objects)
         if (formData.image && formData.image.length > 0) {
           for (let i = 0; i < formData.image.length; i++) {
-            formDataToSend.append('image', formData.image[i]);  // The key 'image' must match the multer field
+            formDataToSend.append('image', formData.image[i]);  
           }
         }
 
-    //    console.log('form data to send',formDataToSend)
-        // Send the formData as a multipart/form-data request
         const response = await VendorAddProperty(formDataToSend);
         if(response.status===404){
               ShowToast('error',response.data.message)
-            //   return <Navigate to="/vendor/login" />
             setTimeout(() => {
                 navigate('/vendor/login')
             }, 2000);
@@ -95,6 +92,70 @@ const fetchLocation=async()=>{
         console.log('Error saving property', error);
       }
     };
+    const handleEdit = (property) => {
+      console.log('properties from the property editing page',property)
+      setSelectedProperty(property) 
+      setShowEditModal(true) 
+  }
+//   const createFormData = (updatedValues) => {
+//     const formData = new FormData();
+    
+//     // Append all the values from the updatedValues object to FormData
+//     for (const key in updatedValues) {
+//         if (key === 'newImages' && Array.isArray(updatedValues[key])) {
+//             // If there are new images, append each image file to the form data
+//             updatedValues[key].forEach((file, index) => {
+//                 formData.append('image', file); // Ensure 'image' matches your backend field
+//             });
+//         } else if (key === 'imagesToDelete' && Array.isArray(updatedValues[key])) {
+//             // Handle images marked for deletion
+//             formData.append('imagesToDelete', JSON.stringify(updatedValues[key]));
+//         } else {
+//             formData.append(key, updatedValues[key]); // Append other fields
+//         }
+//     }
+
+//     return formData;
+// };
+const handleSaveEdit = async (updatedValues) => {
+  console.log('Updated property values in the frontend', updatedValues);
+  const formData = new FormData();
+
+  for (let key in updatedValues) {
+    if (key === 'newImages') {
+      // Handle image files
+      const files = updatedValues[key];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        // Check if it's a File object
+        if (file instanceof File) {
+          formData.append('images', file, file.name);
+        } else if (file.originFileObj instanceof File) {
+          // If it's an object with originFileObj (as in your metadata)
+          formData.append('images', file.originFileObj, file.originFileObj.name);
+        } else {
+          console.warn(`Invalid file object at index ${i}`, file);
+        }
+      }
+    } else if (typeof updatedValues[key] === 'object' && !Array.isArray(updatedValues[key])) {
+      formData.append(key, JSON.stringify(updatedValues[key])); // Append other objects as JSON strings
+    } else {
+      formData.append(key, updatedValues[key]); // Append other fields
+    }
+  }
+
+
+  try {
+    // Send formData to the backend
+    const response = await VendorUpdateProduct(formData);
+    console.log('Property updated successfully', response);
+  } catch (error) {
+    console.error('Error updating property', error);
+  }
+};
+
+
+
     const columns = [
       {
         title: 'Property Name',
@@ -120,7 +181,7 @@ const fetchLocation=async()=>{
           title: 'Vendor ID',
           dataIndex: 'vendor',
           key: 'vendor',
-          render: (vendor) => vendor, // Render the vendor ID
+          render: (vendor) => vendor, 
         },
       // {
       //   title:'PropertyState',
@@ -187,11 +248,11 @@ const fetchLocation=async()=>{
         key: 'actions',
         render: (record) => (
           <div className="flex space-x-2">
-            <Button type="primary" onClick={() => handleEdit(record)}>
-              Edit
+            <Button  onClick={() => handleEdit(record)}>
+              <EditOutlined/>
             </Button>
-            <Button type="danger" onClick={() => handleDelete(record._id)}>
-              Delete
+            <Button onClick={() => handleDelete(record._id)}>
+              <DeleteOutlined/>
             </Button>
           </div>
         ),
@@ -243,6 +304,14 @@ const fetchLocation=async()=>{
         handleClose={closeModal}
         property={selectedProperty}
       />
+      
+      <ConfirmModal 
+        isModalOpen={showEditModal} 
+        setIsModalOpen={setShowEditModal} 
+        formData={selectedProperty} // Pass selected property data to ConfirmModal
+        onSave={handleSaveEdit} // Function to handle saving edited data
+        title="Edit Property" 
+    />
     </div>
   )
 }

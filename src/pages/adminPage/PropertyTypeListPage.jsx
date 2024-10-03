@@ -5,10 +5,15 @@ import AdminAddPropertyType from '@/services/admin/AdminAddPropertyType';
 import CommonTable from '@/components/common/CommonTable';
 import instance from '@/utils/Axios';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import ConfirmModal from '@/components/common/ConfirmModal';
+import PropertyListGet from '@/services/admin/PropertyListGet';
 
 export default function PropertyTypeListPage() {
     const [isShowModal, setShowModal] = useState(false);
     const [propertyType, setPropertyType] = useState([]);
+    const [editModal,setEditModal]=useState(false)
+    const [editProperty,setEditProperty]=useState(null)
+    const [editId,setEditId]=useState(null)
 
     const addProperty = () => setShowModal((cur) => !cur);
 
@@ -34,7 +39,7 @@ export default function PropertyTypeListPage() {
     useEffect(() => {
         const fetchPropertyTypes = async () => {
             try {
-                const response = await instance.get('/admin/property');
+                const response = await PropertyListGet();
                 if (response.status === 200) {
                     const propertyTypesWithKey = response.data.propertyType.map((item) => ({
                         key: item._id,
@@ -48,15 +53,41 @@ export default function PropertyTypeListPage() {
         };
         fetchPropertyTypes();
     }, []);
+   
+    const handleEdit =(id) => {
+      let propertyEdit=propertyType.find(pro=>pro.key===id)
+      const {propertyName,key}=propertyEdit
+      setEditId(key)
+      setEditProperty({propertyName})
+      setEditModal(true)
 
-    const handleEdit = (key) => {
-        console.log("Edit Property ID:", key);
-        // Implement the edit logic
     };
+    const handleUpdateLocation=async(formValues)=>{
+        const {propertyName}=formValues
+        const id=editId
+        try {
+            const response=await instance.patch(`/admin/editProperty/${id}`,{
+                newPropertyName:propertyName},{withCredentials:true}
+            )
+            setPropertyType(response.data.updatedProperty.map((item) => ({
+                key: item._id,
+                propertyName: item.propertyName,
+            })))
+        } catch (error) {
+            console.log(error)
+        }
+ }
 
-    const handleDelete = (key) => {
-        console.log("Delete Property ID:", key);
-        // Implement the delete logic
+    const handleDelete =async(key) => {
+        try {
+            const response=await instance.delete(`/admin/deleteProperty/${key}`,{withCredentials:true})
+            setPropertyType(response.data.filtered.map((item) => ({
+                key: item._id,
+                propertyName: item.propertyName,
+            })))
+            } catch (error) {
+            console.log(error)
+        }
     };
 
     const columns = [
@@ -97,15 +128,13 @@ export default function PropertyTypeListPage() {
     return (
         <div className="container mx-auto p-4">
             <div className="flex justify-center items-center mb-6">
-                {/* <h1 className="text-2xl font-semibold">Listing Properties</h1> */}
                 <CommonButton className="bg-blue-300 w-40 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg" label={'Add Property'} onClick={addProperty} />
             </div>
 
-            {/* Responsive table */}
             <div className="overflow-x-auto">
                 <CommonTable columns={columns} data={propertyType} className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md" />
             </div>
-
+           
             <CommonModal
                 open={isShowModal}
                 content={content}
@@ -113,6 +142,14 @@ export default function PropertyTypeListPage() {
                 onSave={handleSavePropertyType}
                 title={'Add Property Type'}
             />
+             <ConfirmModal
+                isModalOpen={editModal}
+                setIsModalOpen={setEditModal}
+                formData={editProperty} // Pass the dynamic form data
+                onSave={handleUpdateLocation} // Handle saving the updated data
+                title="Edit Location"
+            />
         </div>
+        
     );
 }
